@@ -1,16 +1,28 @@
-# smart_delivery
+# Sustainable Food Delivery Optimization
 
-A new Flutter project.
+This Flutter project aims to build a solution for optimizing food delivery routes for local restaurants. The solution utilizes HERE Routing APIs and Mobile SDKs to optimize routes while minimizing environmental impact.
 
-## Getting Started
+## Problem Statement
 
-This project is a starting point for a Flutter application.
+The goal of this project is to develop a website or mobile app that addresses the following:
 
-A few resources to get you started if this is your first Flutter project:
+- **Optimizing Delivery Routes:** The solution should optimize delivery routes for local restaurants to reduce delivery time and costs.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Minimizing Environmental Impact:** The solution should prioritize routes that minimize environmental impact, such as reducing carbon emissions and fuel consumption.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Features
+
+- **Route Optimization:** The app optimizes delivery routes based on real-time traffic data and restaurant locations.
+
+- **Environmental Impact Analysis:** The app provides insights into the environmental impact of delivery routes, allowing users to choose more sustainable options.
+
+- **Integration with HERE APIs:** The app integrates with HERE Routing APIs and Mobile SDKs to provide accurate and efficient route optimization.
+
+## Demo Apps
+
+This repository contains demo apps for both Android and iOS platforms. You can find the code for these apps in the `android` and `ios` directories, respectively.
+
+## Video Demo
+
+https://drive.google.com/drive/folders/1qJiQU5Dc54vsAvnF741M7h5fSbP7zv65?usp=sharing
+
