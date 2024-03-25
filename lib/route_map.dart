@@ -12,6 +12,8 @@ import 'package:smart_delivery/latlngz.dart';
 //   runApp(MyApp());
 // }
 
+// Sustainable Food Delivery Optimization: Build a solution (website or mobile app) that optimizes food delivery routes for local restaurants using HERE Routing APIs and Mobile SDKs while minimizing environmental impact.
+
 class MyApp11 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -35,82 +37,121 @@ class MyApp11 extends StatelessWidget {
                   ['arrival']['place']['location'];
               // print(startMarker[0] + "  " + endMarker[0]);
 
-              return FlutterMap(
-                options: MapOptions(
-                  center: LatLng(startMarker['lat'] as double,
-                      startMarker['lng'] as double),
-                  zoom: 5.0,
+              return Stack(children: [
+                Positioned.fill(
+                  child: FlutterMap(
+                    options: MapOptions(
+                      center: LatLng(startMarker['lat'] as double,
+                          startMarker['lng'] as double),
+                      zoom: 5.0,
+                    ),
+                    children: [
+                      TileLayer(
+                        urlTemplate:
+                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        // subdomains: ['a', 'b', 'c'],
+                      ),
+                      PolylineLayer(
+                        //12.7889551, 80.2213335
+                        // 12.791826579973867, 80.22216117610574
+                        //12.79699690468084, 80.22307579398407
+                        // 12.8593407,  80.2265026
+                        polylines: [
+                          Polyline(
+                            points: [
+                              LatLng(12.7889551, 80.2213335),
+                              LatLng(12.791826579973867, 80.22216117610574),
+                              LatLng(12.79699690468084, 80.22307579398407),
+                              LatLng(12.8593407, 80.2265026)
+                            ],
+                            color: Colors.blue,
+                            strokeWidth: 3.0,
+                          ),
+                        ],
+                      ),
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            width: 40.0,
+                            height: 40.0,
+                            point:
+                                LatLng(startMarker['lat'], startMarker['lng']),
+                            child: Icon(Icons.location_on, color: Colors.green),
+                          ),
+                          Marker(
+                            width: 40.0,
+                            height: 40.0,
+                            point: LatLng(endMarker['lat'], endMarker['lng']),
+                            child: Icon(Icons.location_on, color: Colors.red),
+                          ),
+                        ],
+                      )
+                    ],
+                    // layers: [
+                    //   TileLayerOptions(
+                    //     urlTemplate:
+                    //         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    //     subdomains: ['a', 'b', 'c'],
+                    //   ),
+                    //   PolylineLayerOptions(
+                    //     polylines: [
+                    //       Polyline(
+                    //         points: decodePolyline(route),
+                    //         color: Colors.blue,
+                    //         strokeWidth: 3.0,
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   MarkerLayerOptions(
+                    //     markers: [
+                    //       Marker(
+                    //         width: 40.0,
+                    //         height: 40.0,
+                    //         point: LatLng(startMarker[0], startMarker[1]),
+                    //         builder: (ctx) =>
+                    //             Icon(Icons.location_on, color: Colors.green),
+                    //       ),
+                    //       Marker(
+                    //         width: 40.0,
+                    //         height: 40.0,
+                    //         point: LatLng(endMarker[0], endMarker[1]),
+                    //         builder: (ctx) =>
+                    //             Icon(Icons.location_on, color: Colors.red),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ],
+                  ),
                 ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    // subdomains: ['a', 'b', 'c'],
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: EdgeInsets.all(5),
+                    height: 50,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Color.fromRGBO(244, 243, 243, 1),
+                        borderRadius: BorderRadius.circular(15)),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.black87,
+                        ),
+                        hintText: 'Search you\'re looking for',
+                        hintStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
                   ),
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: decode_with_polyline(route).map((e) {
-                          print(e.lng.toString() + " " + e.lat.toString());
-                          return LatLng(e.lat, e.lng);
-                        }).toList(),
-                        color: Colors.blue,
-                        strokeWidth: 3.0,
-                      ),
-                    ],
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        width: 40.0,
-                        height: 40.0,
-                        point: LatLng(startMarker['lat'], startMarker['lng']),
-                        child: Icon(Icons.location_on, color: Colors.green),
-                      ),
-                      Marker(
-                        width: 40.0,
-                        height: 40.0,
-                        point: LatLng(endMarker['lat'], endMarker['lng']),
-                        child: Icon(Icons.location_on, color: Colors.red),
-                      ),
-                    ],
-                  )
-                ],
-                // layers: [
-                //   TileLayerOptions(
-                //     urlTemplate:
-                //         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                //     subdomains: ['a', 'b', 'c'],
-                //   ),
-                //   PolylineLayerOptions(
-                //     polylines: [
-                //       Polyline(
-                //         points: decodePolyline(route),
-                //         color: Colors.blue,
-                //         strokeWidth: 3.0,
-                //       ),
-                //     ],
-                //   ),
-                //   MarkerLayerOptions(
-                //     markers: [
-                //       Marker(
-                //         width: 40.0,
-                //         height: 40.0,
-                //         point: LatLng(startMarker[0], startMarker[1]),
-                //         builder: (ctx) =>
-                //             Icon(Icons.location_on, color: Colors.green),
-                //       ),
-                //       Marker(
-                //         width: 40.0,
-                //         height: 40.0,
-                //         point: LatLng(endMarker[0], endMarker[1]),
-                //         builder: (ctx) =>
-                //             Icon(Icons.location_on, color: Colors.red),
-                //       ),
-                //     ],
-                //   ),
-                // ],
-              );
+                ),
+              ]);
             }
           },
         ),
@@ -119,7 +160,7 @@ class MyApp11 extends StatelessWidget {
   }
 
   Future<Map<String, dynamic>> _getRoute() async {
-    final apiKey = 'd_ag3Uo2tkXDKu4yXHAHMX5L-YsiYlhswXAYd6M6fUo';
+    final apiKey = '';
     final url = Uri.parse(
         'https://router.hereapi.com/v8/routes?transportMode=car&origin=12.788984785298272,80.22124499381923&destination=12.859312691685638,80.2266953129383&return=polyline&app_id=lGbbK0FdH3y7Qu4ZaZIU&apiKey=$apiKey');
     final response = await http.get(url);
@@ -169,7 +210,6 @@ class MyApp11 extends StatelessWidget {
 
       double latitude = lat / 1E5;
       double longitude = lng / 1E5;
-4.1611307
 
       if (latitude >= -90 &&
           latitude <= 90 &&
