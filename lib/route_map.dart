@@ -6,7 +6,9 @@ import 'package:latlong2/latlong.dart';
 import 'dart:convert';
 
 import 'package:smart_delivery/flexible_polyline.dart';
-import 'package:smart_delivery/latlngz.dart';
+import 'package:smart_delivery/latlngz.dart' as latlat;
+
+import 'latlngz.dart';
 
 // void main() {
 //   runApp(MyApp());
@@ -36,6 +38,7 @@ class MyApp11 extends StatelessWidget {
               var endMarker = snapshot.data!['routes'][0]['sections'][0]
                   ['arrival']['place']['location'];
               // print(startMarker[0] + "  " + endMarker[0]);
+              // sak(route);
 
               return Stack(children: [
                 Positioned.fill(
@@ -58,14 +61,11 @@ class MyApp11 extends StatelessWidget {
                         // 12.8593407,  80.2265026
                         polylines: [
                           Polyline(
-                            points: [
-                              LatLng(12.7889551, 80.2213335),
-                              LatLng(12.791826579973867, 80.22216117610574),
-                              LatLng(12.79699690468084, 80.22307579398407),
-                              LatLng(12.8593407, 80.2265026)
-                            ],
+                            points: sak(route)
+                                .map((e) => LatLng(e.lat, e.lng))
+                                .toList(),
                             color: Colors.blue,
-                            strokeWidth: 3.0,
+                            strokeWidth: 8.0,
                           ),
                         ],
                       ),
@@ -87,40 +87,6 @@ class MyApp11 extends StatelessWidget {
                         ],
                       )
                     ],
-                    // layers: [
-                    //   TileLayerOptions(
-                    //     urlTemplate:
-                    //         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    //     subdomains: ['a', 'b', 'c'],
-                    //   ),
-                    //   PolylineLayerOptions(
-                    //     polylines: [
-                    //       Polyline(
-                    //         points: decodePolyline(route),
-                    //         color: Colors.blue,
-                    //         strokeWidth: 3.0,
-                    //       ),
-                    //     ],
-                    //   ),
-                    //   MarkerLayerOptions(
-                    //     markers: [
-                    //       Marker(
-                    //         width: 40.0,
-                    //         height: 40.0,
-                    //         point: LatLng(startMarker[0], startMarker[1]),
-                    //         builder: (ctx) =>
-                    //             Icon(Icons.location_on, color: Colors.green),
-                    //       ),
-                    //       Marker(
-                    //         width: 40.0,
-                    //         height: 40.0,
-                    //         point: LatLng(endMarker[0], endMarker[1]),
-                    //         builder: (ctx) =>
-                    //             Icon(Icons.location_on, color: Colors.red),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ],
                   ),
                 ),
                 Positioned(
@@ -160,17 +126,45 @@ class MyApp11 extends StatelessWidget {
   }
 
   Future<Map<String, dynamic>> _getRoute() async {
-    final apiKey = '';
+    final apiKey = 'd_ag3Uo2tkXDKu4yXHAHMX5L-YsiYlhswXAYd6M6fUo';
     final url = Uri.parse(
-        'https://router.hereapi.com/v8/routes?transportMode=car&origin=12.788984785298272,80.22124499381923&destination=12.859312691685638,80.2266953129383&return=polyline&app_id=lGbbK0FdH3y7Qu4ZaZIU&apiKey=$apiKey');
-    final response = await http.get(url);
+        'https://router.hereapi.com/v8/routes?transportMode=car&origin=12.788984785298272,80.22124499381923&destination=12.901385784431096,80.1604829518495&return=polyline&apiKey=$apiKey');
 
+    // final url = Uri.parse('https://router.hereapi.com/v8/routes'
+    // '?transportMode=car'
+    // '&origin=12.788984785298272,80.22124499381923'
+    // '&destination=12.901385784431096,80.1604829518495'
+    // '&return=polyline'
+    // '&traffic:enabled=true'
+    // '&apiKey=$apiKey');
+    final response = await http.get(url);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to load route: ${response.statusCode}');
     }
   }
+
+  // Future<List<List<double>>> getRouteCoordinates() async {
+  //   final apiKey = 'd_ag3Uo2tkXDKu4yXHAHMX5L-YsiYlhswXAYd6M6fUo';
+  //   final url = Uri.parse('https://route.ls.hereapi.com/routing/7.2/calculateroute.json'
+  //       '?apiKey=$apiKey'
+  //       '&waypoint0=$start'
+  //       '&waypoint1=$end'
+  //       '&mode=fastest;car'
+  //       '&representation=navigation');
+
+  //   final response = await http.get(url);
+  //   final data = jsonDecode(response.body);
+
+  //   final shapePoints = data['response']['route'][0]['leg'][0]['shape'];
+  //   final coordinates = shapePoints.split(';').map((point) {
+  //     final parts = point.split(',');
+  //     return [double.parse(parts[0]), double.parse(parts[1])];
+  //   }).toList();
+
+  //   return coordinates;
+  // }
 
   List<LatLng> decodePolyline(String polyline) {
     if (polyline == null || polyline.isEmpty) {
@@ -224,8 +218,9 @@ class MyApp11 extends StatelessWidget {
     return decoded;
   }
 
-  List<LatLngZ> decode_with_polyline(String encoded) {
-    List<LatLngZ> decoded = FlexiblePolyline.decode("BFoz5xJ67i1B1B7PzIhaxL7Y");
+  List<latlat.LatLngZ> decode_with_polyline(String encoded) {
+    List<latlat.LatLngZ> decoded =
+        FlexiblePolyline.decode("BFoz5xJ67i1B1B7PzIhaxL7Y");
     print(decoded);
     return decoded;
   }
@@ -259,6 +254,16 @@ class MyApp11 extends StatelessWidget {
       poly.add(p);
     }
     return poly;
+  }
+
+  List<latlat.LatLngZ> sak(String poly) {
+    String encodedPolyline = poly;
+    List<latlat.LatLngZ> decoded = FlexiblePolyline.decode(encodedPolyline);
+    for (var point in decoded) {
+      print(
+          'Latitude: ${point.lat}, Longitude: ${point.lng}, Altitude: ${point.lng}');
+    }
+    return decoded;
   }
 
   /// Note instead of using the class,
@@ -327,3 +332,4 @@ class MyApp11 extends StatelessWidget {
 //     return "lat: $latitude / longitude: $longitude";
 //   }
 // }
+
