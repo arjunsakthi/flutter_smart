@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'dart:convert';
 
 import 'package:smart_delivery/flexible_polyline.dart';
 import 'package:smart_delivery/latlngz.dart' as latlat;
-
-import 'latlngz.dart';
-
-// void main() {
-//   runApp(MyApp());
-// }
 
 // Sustainable Food Delivery Optimization: Build a solution (website or mobile app) that optimizes food delivery routes for local restaurants using HERE Routing APIs and Mobile SDKs while minimizing environmental impact.
 
@@ -39,14 +32,16 @@ class MyApp11 extends StatelessWidget {
                   ['arrival']['place']['location'];
               // print(startMarker[0] + "  " + endMarker[0]);
               // sak(route);
-
+              api_testing();
               return Stack(children: [
                 Positioned.fill(
                   child: FlutterMap(
                     options: MapOptions(
-                      center: LatLng(startMarker['lat'] as double,
-                          startMarker['lng'] as double),
-                      zoom: 5.0,
+                      center: LatLng(
+                          (startMarker['lat'] + endMarker['lat']) / 2 as double,
+                          (startMarker['lng'] + endMarker['lng']) / 2
+                              as double),
+                      zoom: 12.5,
                     ),
                     children: [
                       TileLayer(
@@ -128,15 +123,8 @@ class MyApp11 extends StatelessWidget {
   Future<Map<String, dynamic>> _getRoute() async {
     final apiKey = 'd_ag3Uo2tkXDKu4yXHAHMX5L-YsiYlhswXAYd6M6fUo';
     final url = Uri.parse(
-        'https://router.hereapi.com/v8/routes?transportMode=car&origin=12.788984785298272,80.22124499381923&destination=12.901385784431096,80.1604829518495&return=polyline&apiKey=$apiKey');
+        'https://router.hereapi.com/v8/routes?transportMode=car&origin=25.05230661095756,75.8282113815214&destination=25.149455369588768,75.84268661985736&return=polyline&apiKey=$apiKey');
 
-    // final url = Uri.parse('https://router.hereapi.com/v8/routes'
-    // '?transportMode=car'
-    // '&origin=12.788984785298272,80.22124499381923'
-    // '&destination=12.901385784431096,80.1604829518495'
-    // '&return=polyline'
-    // '&traffic:enabled=true'
-    // '&apiKey=$apiKey');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -145,191 +133,44 @@ class MyApp11 extends StatelessWidget {
     }
   }
 
-  // Future<List<List<double>>> getRouteCoordinates() async {
-  //   final apiKey = 'd_ag3Uo2tkXDKu4yXHAHMX5L-YsiYlhswXAYd6M6fUo';
-  //   final url = Uri.parse('https://route.ls.hereapi.com/routing/7.2/calculateroute.json'
-  //       '?apiKey=$apiKey'
-  //       '&waypoint0=$start'
-  //       '&waypoint1=$end'
-  //       '&mode=fastest;car'
-  //       '&representation=navigation');
-
-  //   final response = await http.get(url);
-  //   final data = jsonDecode(response.body);
-
-  //   final shapePoints = data['response']['route'][0]['leg'][0]['shape'];
-  //   final coordinates = shapePoints.split(';').map((point) {
-  //     final parts = point.split(',');
-  //     return [double.parse(parts[0]), double.parse(parts[1])];
-  //   }).toList();
-
-  //   return coordinates;
-  // }
-
-  List<LatLng> decodePolyline(String polyline) {
-    if (polyline == null || polyline.isEmpty) {
-      return [];
-    }
-
-    List<LatLng> decoded = [];
-    int index = 0;
-    int lat = 0;
-    int lng = 0;
-
-    while (index < polyline.length) {
-      int shift = 0;
-      int result = 0;
-      int byte;
-
-      do {
-        byte = polyline.codeUnitAt(index++) - 63;
-        result |= (byte & 0x1F) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-
-      do {
-        byte = polyline.codeUnitAt(index++) - 63;
-        result |= (byte & 0x1F) << shift;
-        shift += 5;
-      } while (byte >= 0x20);
-
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-
-      double latitude = lat / 1E5;
-      double longitude = lng / 1E5;
-
-      if (latitude >= -90 &&
-          latitude <= 90 &&
-          longitude >= -180 &&
-          longitude <= 180) {
-        decoded.add(LatLng(latitude, longitude));
-      } else {
-        print('Invalid latitude/longitude: $latitude, $longitude');
-      }
-    }
-
-    return decoded;
-  }
-
-  List<latlat.LatLngZ> decode_with_polyline(String encoded) {
-    List<latlat.LatLngZ> decoded =
-        FlexiblePolyline.decode("BFoz5xJ67i1B1B7PzIhaxL7Y");
-    print(decoded);
-    return decoded;
-  }
-
-  List<PointLatLng> decodeEncodedPolyline(String encoded) {
-    List<PointLatLng> poly = [];
-    int index = 0, len = encoded.length;
-    int lat = 0, lng = 0;
-
-    while (index < len) {
-      int b, shift = 0, result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-      PointLatLng p =
-          new PointLatLng((lat / 1E5).toDouble(), (lng / 1E5).toDouble());
-      poly.add(p);
-    }
-    return poly;
-  }
-
   List<latlat.LatLngZ> sak(String poly) {
     String encodedPolyline = poly;
     List<latlat.LatLngZ> decoded = FlexiblePolyline.decode(encodedPolyline);
-    for (var point in decoded) {
-      print(
-          'Latitude: ${point.lat}, Longitude: ${point.lng}, Altitude: ${point.lng}');
-    }
+    // for (var point in decoded) {
+    //   print(
+    //       'Latitude: ${point.lat}, Longitude: ${point.lng}, Altitude: ${point.lng}');
+    // }
     return decoded;
   }
 
-  /// Note instead of using the class,
-  /// you can use Google LatLng() by importing it from their library.
+  void api_testing() async {
+    const carTrafficUrl =
+        'https://router.hereapi.com/v8/routes?transportMode=car&origin=START&destination=END&return=summary&traffic:enabled=true&sortBy=duration&apiKey=YOUR_API_KEY';
+    final apiKey = 'd_ag3Uo2tkXDKu4yXHAHMX5L-YsiYlhswXAYd6M6fUo';
+    final alternativeroute =
+        // 'https://router.hereapi.com/v8/routes?&transportMode=car&traffic=enabled&origin=25.05230661095756,75.8282113815214&destination=25.149455369588768,75.84268661985736&return=routeLabels,summary&alternatives=3&apikey=${apiKey}';
+       "https://router.hereapi.com/v8/routes?"
+    "apiKey=$apiKey"
+    "&transportMode=car"
+    "&origin=25.05230661095756,75.8282113815214"
+    "&destination=25.149455369588768,75.84268661985736"
+    "&return=routeLabels,summary"
+    "&departureTime=now"
+    "&alternatives=3";
+    final url = 'https://pos.ls.hereapi.com/positioning/v1/locate?key=$apiKey';
+    final response = await http.get(Uri.parse(alternativeroute));
+    final data = jsonDecode(response.body);
+    print(data);
+    print('object');
 
-  // List<LatLng> decodePolyline(String polyline) {
-  //   List<LatLng> decoded = [];
-  //   var index = 0;
-  //   var lat = 0;
-  //   var lng = 0;
-
-  //   while (index < polyline.length) {
-  //     var b;
-  //     var shift = 0;
-  //     var result = 0;
-  //     do {
-  //       b = polyline.codeUnitAt(index++) - 63;
-  //       result |= (b & 0x1F) << shift;
-  //       shift += 5;
-  //     } while (b >= 0x20);
-  //     var dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-  //     lat += dlat;
-
-  //     shift = 0;
-  //     result = 0;
-  //     do {
-  //       b = polyline.codeUnitAt(index++) - 63;
-  //       result |= (b & 0x1F) << shift;
-  //       shift += 5;
-  //     } while (b >= 0x20);
-  //     var dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-  //     lng += dlng;
-
-  //     var latitude = lat / 1E5;
-  //     var longitude = lng / 1E5;
-  //     if (latitude >= -90 &&
-  //         latitude <= 90 &&
-  //         longitude >= -180 &&
-  //         longitude <= 180) {
-  //       decoded.add(LatLng(latitude, longitude));
-  //     }
-  //   }
-
-  //   return decoded;
-  // }
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print(data);
+      // final lat = data['location']['lat'];
+      // final lon = data['location']['lng'];
+      // print('Latitude: $lat, Longitude: $lon');
+    } else {
+      print('Failed to get live location: ${response.statusCode}');
+    }
+  }
 }
-
-// class PointLatLng {
-//   /// Creates a geographical location specified in degrees [latitude] and
-//   /// [longitude].
-//   ///
-//   const PointLatLng(double latitude, double longitude)
-//       : assert(latitude != null),
-//         assert(longitude != null),
-//         this.latitude = latitude,
-//         this.longitude = longitude;
-
-//   /// The latitude in degrees.
-//   final double latitude;
-
-//   /// The longitude in degrees
-//   final double longitude;
-
-//   @override
-//   String toString() {
-//     return "lat: $latitude / longitude: $longitude";
-//   }
-// }
-
