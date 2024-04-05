@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
@@ -9,7 +10,25 @@ import 'package:smart_delivery/latlngz.dart' as latlat;
 
 // Sustainable Food Delivery Optimization: Build a solution (website or mobile app) that optimizes food delivery routes for local restaurants using HERE Routing APIs and Mobile SDKs while minimizing environmental impact.
 
-class MyApp11 extends StatelessWidget {
+class MyApp11 extends StatefulWidget {
+  @override
+  State<MyApp11> createState() => _MyApp11State();
+}
+
+class _MyApp11State extends State<MyApp11> {
+  List<Marker> _marker = [];
+  final GlobalKey _markerLayerKey = GlobalKey();
+  late MapController _mapController;
+  LatLng? camera_center = null;
+  double camera_zoom_level = 12.5;
+  int count = 0;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _mapController = MapController();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,6 +37,7 @@ class MyApp11 extends StatelessWidget {
         body: FutureBuilder<Map<String, dynamic>>(
           future: _getRoute(),
           builder: (context, snapshot) {
+            print(_marker.length);
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
@@ -30,18 +50,42 @@ class MyApp11 extends StatelessWidget {
                   ['departure']['place']['location'];
               var endMarker = snapshot.data!['routes'][0]['sections'][0]
                   ['arrival']['place']['location'];
+              camera_center = camera_center ??
+                  LatLng((startMarker['lat'] + endMarker['lat']) / 2 as double,
+                      (startMarker['lng'] + endMarker['lng']) / 2 as double);
               // print(startMarker[0] + "  " + endMarker[0]);
               // sak(route);
               api_testing();
               return Stack(children: [
                 Positioned.fill(
                   child: FlutterMap(
+                    mapController: _mapController,
                     options: MapOptions(
-                      center: LatLng(
-                          (startMarker['lat'] + endMarker['lat']) / 2 as double,
-                          (startMarker['lng'] + endMarker['lng']) / 2
-                              as double),
-                      zoom: 12.5,
+                      center: camera_center,
+                      zoom: camera_zoom_level,
+                      onTap: (tap, latlng) {
+                        print(
+                            "Tapped at: ${latlng.latitude}, ${latlng.longitude}, ${tap}");
+                        setState(() {
+                          _marker.add(
+                            Marker(
+                              width: 40.0,
+                              height: 40.0,
+                              point: latlng,
+                              child:
+                                  Icon(Icons.location_on, color: Colors.blue),
+                            ),
+                          );
+                          camera_center = _mapController.camera.center;
+                          camera_zoom_level = _mapController.camera.zoom;
+                        });
+                        // setState(() {
+                        // });
+
+                        // Use latlng.latitude and latlng.longitude for your purposes
+                      },
+                      onSecondaryTap: (tapPosition, point) =>
+                          print("${point.latitude},${point.longitude}"),
                     ),
                     children: [
                       TileLayer(
@@ -65,13 +109,37 @@ class MyApp11 extends StatelessWidget {
                         ],
                       ),
                       MarkerLayer(
+                        key: _markerLayerKey,
                         markers: [
+                          ..._marker,
                           Marker(
                             width: 40.0,
                             height: 40.0,
                             point:
                                 LatLng(startMarker['lat'], startMarker['lng']),
-                            child: Icon(Icons.location_on, color: Colors.green),
+                            child: GestureDetector(
+                                onTap: () => {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Marker Text'),
+                                            content: Text(
+                                                'This is the text for the marker.'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('Close'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      )
+                                    },
+                                child: Icon(Icons.location_on,
+                                    color: Colors.green)),
                           ),
                           Marker(
                             width: 40.0,
@@ -80,7 +148,7 @@ class MyApp11 extends StatelessWidget {
                             child: Icon(Icons.location_on, color: Colors.red),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -109,6 +177,17 @@ class MyApp11 extends StatelessWidget {
                           fontSize: 15,
                         ),
                       ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      child: Text("Calculate Route"),
+                      onPressed: () {},
                     ),
                   ),
                 ),
@@ -149,14 +228,13 @@ class MyApp11 extends StatelessWidget {
     final apiKey = 'd_ag3Uo2tkXDKu4yXHAHMX5L-YsiYlhswXAYd6M6fUo';
     final alternativeroute =
         // 'https://router.hereapi.com/v8/routes?&transportMode=car&traffic=enabled&origin=25.05230661095756,75.8282113815214&destination=25.149455369588768,75.84268661985736&return=routeLabels,summary&alternatives=3&apikey=${apiKey}';
-       "https://router.hereapi.com/v8/routes?"
-    "apiKey=$apiKey"
-    "&transportMode=car"
-    "&origin=25.05230661095756,75.8282113815214"
-    "&destination=25.149455369588768,75.84268661985736"
-    "&return=routeLabels,summary"
-    "&departureTime=now"
-    "&alternatives=3";
+        "https://router.hereapi.com/v8/routes?"
+        "apiKey=$apiKey"
+        "&transportMode=car"
+        "&origin=25.05230661095756,75.8282113815214"
+        "&destination=25.149455369588768,75.84268661985736"
+        "&return=summary"
+        "&alternatives=3";
     final url = 'https://pos.ls.hereapi.com/positioning/v1/locate?key=$apiKey';
     final response = await http.get(Uri.parse(alternativeroute));
     final data = jsonDecode(response.body);

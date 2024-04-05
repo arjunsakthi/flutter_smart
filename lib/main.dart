@@ -6,7 +6,7 @@ import 'package:smart_delivery/rough_work.dart';
 import 'package:smart_delivery/route_map.dart';
 
 void main() {
-  runApp(LiveLocationWidget());
+  runApp(MyApp11());
 }
 
 class MyApp extends StatelessWidget {
